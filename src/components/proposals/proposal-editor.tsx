@@ -1,22 +1,14 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import {
-  Download,
-  Link2,
-  Loader2,
-  Copy,
-  ExternalLink,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EditorHeader } from "@/components/proposals/editor/editor-header";
 import { DesignControls } from "@/components/proposals/editor/design-controls";
 import { EditorContent } from "@/components/proposals/editor/editor-content";
 import { useAutosave } from "@/hooks/use-autosave";
-import { updateProposalAction, toggleShareAction, updateProposalStatusAction } from "@/actions/proposals";
+import { updateProposalAction, updateProposalStatusAction } from "@/actions/proposals";
 import { STATUS_LABELS } from "@/lib/constants";
 import type { Proposal, Profile, LineItem, ProposalStatus } from "@/types";
 
@@ -28,14 +20,6 @@ interface ProposalEditorProps {
 
 export function ProposalEditor({ proposal: initialProposal }: ProposalEditorProps): React.ReactElement {
   const [proposal, setProposal] = useState(initialProposal);
-  const [shareLoading, setShareLoading] = useState(false);
-  const [shareUrl, setShareUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (initialProposal.share_enabled && initialProposal.share_token) {
-      setShareUrl(`${window.location.origin}/share/${initialProposal.share_token}`);
-    }
-  }, [initialProposal.share_enabled, initialProposal.share_token]);
 
   const handleSave = useCallback(
     async (data: Record<string, unknown>) => {
@@ -80,50 +64,6 @@ export function ProposalEditor({ proposal: initialProposal }: ProposalEditorProp
     [proposal.id]
   );
 
-  const handleShare = useCallback(async () => {
-    setShareLoading(true);
-    const result = await toggleShareAction(proposal.id);
-    setShareLoading(false);
-
-    if (result.error) {
-      toast.error(result.error);
-      return;
-    }
-
-    if (result.shareUrl) {
-      setShareUrl(result.shareUrl);
-      try {
-        await navigator.clipboard.writeText(result.shareUrl);
-        toast.success("Share link copied to clipboard!");
-      } catch {
-        toast.success("Share link enabled!");
-      }
-      setProposal((prev) => ({ ...prev, share_enabled: true }));
-    } else {
-      setShareUrl(null);
-      setProposal((prev) => ({ ...prev, share_enabled: false }));
-      toast.success("Share link disabled");
-    }
-  }, [proposal.id]);
-
-  const handleExportPdf = useCallback(async () => {
-    toast.info("Generating PDF...");
-    try {
-      const response = await fetch(`/api/proposals/${proposal.id}/pdf`);
-      if (!response.ok) throw new Error("Failed to generate PDF");
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `${proposal.title}.pdf`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success("PDF downloaded!");
-    } catch {
-      toast.error("Failed to generate PDF");
-    }
-  }, [proposal.id, proposal.title]);
-
   // Line items management
   const updateLineItem = useCallback(
     (index: number, field: keyof LineItem, value: string | number) => {
@@ -154,11 +94,13 @@ export function ProposalEditor({ proposal: initialProposal }: ProposalEditorProp
 
   return (
     <div className="space-y-4">
-      {/* Header */}
+      {/* Header with actions */}
       <EditorHeader
         proposal={proposal}
         updateField={updateField}
         onStatusChange={handleStatusChange}
+        saving={saving}
+        lastSaved={lastSaved}
       />
 
       {/* Design Controls */}
@@ -187,68 +129,6 @@ export function ProposalEditor({ proposal: initialProposal }: ProposalEditorProp
           <PdfPreview key={previewKey} proposalId={proposal.id} />
         </TabsContent>
       </Tabs>
-
-      {/* Toolbar */}
-      <div className="sticky bottom-0 z-20 -mx-4 border-t bg-card/80 backdrop-blur-sm px-4 py-3 md:-mx-6 md:px-6">
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm" onClick={handleExportPdf}>
-              <Download className="mr-1.5 h-3.5 w-3.5" />
-              Export PDF
-            </Button>
-            <Button variant="outline" size="sm" onClick={handleShare} disabled={shareLoading}>
-              {shareLoading ? (
-                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Link2 className="mr-1.5 h-3.5 w-3.5" />
-              )}
-              {proposal.share_enabled ? "Disable Share" : "Enable Share Link"}
-            </Button>
-            {shareUrl && proposal.share_enabled && (
-              <div className="flex items-center gap-1.5 rounded-md border bg-muted/50 px-2 py-1">
-                <span className="max-w-[200px] truncate text-xs text-muted-foreground font-mono">
-                  {shareUrl.replace(/^https?:\/\//, "")}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    try {
-                      await navigator.clipboard.writeText(shareUrl);
-                      toast.success("Link copied!");
-                    } catch {
-                      toast.info(shareUrl, { duration: 8000 });
-                    }
-                  }}
-                >
-                  <Copy className="h-3 w-3" />
-                </Button>
-                <a href={shareUrl} target="_blank" rel="noopener noreferrer">
-                  <Button variant="ghost" size="icon" className="h-6 w-6">
-                    <ExternalLink className="h-3 w-3" />
-                  </Button>
-                </a>
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            {saving ? (
-              <span className="flex items-center gap-1.5">
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Saving...
-              </span>
-            ) : lastSaved ? (
-              <span>
-                Last saved {formatDistanceToNow(lastSaved, { addSuffix: true })}
-              </span>
-            ) : (
-              <span>Autosave enabled</span>
-            )}
-          </div>
-        </div>
-      </div>
     </div>
   );
 }
