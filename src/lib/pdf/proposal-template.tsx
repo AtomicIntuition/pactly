@@ -1,9 +1,11 @@
+/* eslint-disable jsx-a11y/alt-text */
 import React from "react";
 import {
   Document,
   Page,
   Text,
   View,
+  Image,
   StyleSheet,
 } from "@react-pdf/renderer";
 import { resolveProposalColors } from "@/lib/templates";
@@ -38,6 +40,11 @@ function stripLeadingTitle(text: string, ...titles: string[]): string {
   return result.trim();
 }
 
+function formatSignedDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
 /* ── Shared styles ───────────────────────────────────────── */
 
 const s = StyleSheet.create({
@@ -64,12 +71,21 @@ const s = StyleSheet.create({
     borderBottomWidth: 0.5,
     borderBottomColor: "#d6d3d1",
   },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+  },
+  headerLogo: {
+    width: 14,
+    height: 14,
+    objectFit: "contain" as const,
+  },
   headerText: {
     fontSize: 7.5,
     color: "#78716c",
     fontFamily: "Helvetica",
   },
-  /* Footer styles are inline on individual fixed Text elements */
   /* Body text */
   paragraph: {
     fontSize: 10,
@@ -140,6 +156,9 @@ function CoverModern({ proposal, profile, colors }: {
         position: "absolute", top: 0, bottom: 0, left: 55, right: 55,
         justifyContent: "center", paddingTop: 120,
       }}>
+        {profile.company_logo_url && (
+          <Image src={profile.company_logo_url} style={{ width: 48, height: 48, objectFit: "contain" as const, marginBottom: 12 }} />
+        )}
         <Text style={{
           fontSize: 32, fontFamily: "Helvetica-Bold", color: "#ffffff",
           marginBottom: 10,
@@ -190,7 +209,6 @@ function CoverClassic({ proposal, profile, colors }: {
   const companyName = profile.company_name || profile.full_name;
   return (
     <Page size="A4" style={{ padding: 0 }}>
-      {/* White background is default */}
       {/* Accent bar at top */}
       <View style={{
         position: "absolute", top: 0, left: 0, right: 0,
@@ -201,6 +219,9 @@ function CoverClassic({ proposal, profile, colors }: {
         flex: 1, justifyContent: "center", alignItems: "center",
         paddingHorizontal: 70,
       }}>
+        {profile.company_logo_url && (
+          <Image src={profile.company_logo_url} style={{ width: 56, height: 56, objectFit: "contain" as const, marginBottom: 16 }} />
+        )}
         <Text style={{
           fontSize: 28, fontFamily: "Helvetica-Bold", color: colors.primary,
           textAlign: "center", marginBottom: 8,
@@ -272,18 +293,21 @@ function CoverBold({ proposal, profile, colors }: {
         position: "absolute", top: 0, bottom: 0, left: 55, right: 55,
         justifyContent: "center", paddingTop: 100,
       }}>
-        {/* Company pill */}
-        <View style={{
-          backgroundColor: colors.accent,
-          borderRadius: 12,
-          paddingHorizontal: 14, paddingVertical: 5,
-          alignSelf: "flex-start",
-          marginBottom: 20,
-        }}>
-          <Text style={{ fontSize: 9, color: "#ffffff", fontFamily: "Helvetica-Bold", textTransform: "uppercase", letterSpacing: 1 }}>
-            {companyName}
-          </Text>
-        </View>
+        {profile.company_logo_url ? (
+          <Image src={profile.company_logo_url} style={{ width: 48, height: 48, objectFit: "contain" as const, marginBottom: 20 }} />
+        ) : (
+          <View style={{
+            backgroundColor: colors.accent,
+            borderRadius: 12,
+            paddingHorizontal: 14, paddingVertical: 5,
+            alignSelf: "flex-start",
+            marginBottom: 20,
+          }}>
+            <Text style={{ fontSize: 9, color: "#ffffff", fontFamily: "Helvetica-Bold", textTransform: "uppercase", letterSpacing: 1 }}>
+              {companyName}
+            </Text>
+          </View>
+        )}
         <Text style={{
           fontSize: 36, fontFamily: "Helvetica-Bold", color: "#ffffff",
           marginBottom: 24,
@@ -338,12 +362,17 @@ function CoverMinimal({ proposal, profile, colors }: {
       <View style={{
         paddingTop: 100, paddingHorizontal: 60,
       }}>
-        <Text style={{
-          fontSize: 8, color: "#a8a29e", textTransform: "uppercase",
-          letterSpacing: 2, marginBottom: 14,
-        }}>
-          {companyName}
-        </Text>
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 14 }}>
+          {profile.company_logo_url && (
+            <Image src={profile.company_logo_url} style={{ width: 32, height: 32, objectFit: "contain" as const }} />
+          )}
+          <Text style={{
+            fontSize: 8, color: "#a8a29e", textTransform: "uppercase",
+            letterSpacing: 2,
+          }}>
+            {companyName}
+          </Text>
+        </View>
         <Text style={{
           fontSize: 26, fontFamily: "Helvetica-Bold", color: colors.primary,
           marginBottom: 30,
@@ -652,6 +681,41 @@ function InvestmentSection({ investment, layout, primary, accent }: {
   );
 }
 
+/* ── Signature Block ─────────────────────────────────────── */
+
+function SignatureBlock({ proposal }: {
+  proposal: Proposal;
+}): React.ReactElement | null {
+  if (!proposal.signature_name || !proposal.signed_at) return null;
+
+  return (
+    <View wrap={false} style={{
+      marginTop: 28,
+      backgroundColor: "#f5f5f4",
+      borderRadius: 6,
+      padding: 16,
+    }}>
+      <Text style={{
+        fontSize: 10, fontFamily: "Helvetica-Bold", textTransform: "uppercase",
+        letterSpacing: 1.5, color: "#78716c", marginBottom: 12,
+      }}>
+        Acceptance
+      </Text>
+      <Text style={{ fontSize: 11, fontFamily: "Helvetica-Bold", color: "#292524", marginBottom: 4 }}>
+        {proposal.signature_name}
+      </Text>
+      <Text style={{ fontSize: 9, color: "#78716c" }}>
+        Signed on {formatSignedDate(proposal.signed_at)}
+      </Text>
+      {proposal.signature_ip && (
+        <Text style={{ fontSize: 7.5, color: "#a8a29e", marginTop: 4 }}>
+          IP: {proposal.signature_ip}
+        </Text>
+      )}
+    </View>
+  );
+}
+
 /* ── Main Component ──────────────────────────────────────── */
 
 export function ProposalPdf({ proposal, profile, layout = "modern" }: ProposalPdfProps): React.ReactElement {
@@ -734,6 +798,9 @@ export function ProposalPdf({ proposal, profile, layout = "modern" }: ProposalPd
           </View>
         ) : null}
 
+        {/* ── Signature / Acceptance Block ── */}
+        <SignatureBlock proposal={proposal} />
+
         {/* ── About Us ── */}
         {proposal.about_us ? (
           <View>
@@ -746,7 +813,12 @@ export function ProposalPdf({ proposal, profile, layout = "modern" }: ProposalPd
 
         {/* Fixed header — rendered after content to avoid flow interference */}
         <View style={s.header} fixed>
-          <Text style={s.headerText}>{companyName}</Text>
+          <View style={s.headerLeft}>
+            {profile.company_logo_url && (
+              <Image src={profile.company_logo_url} style={s.headerLogo} />
+            )}
+            <Text style={s.headerText}>{companyName}</Text>
+          </View>
           <Text style={s.headerText}>{proposal.title}</Text>
         </View>
 

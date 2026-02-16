@@ -3,11 +3,12 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   Download,
-  Link2,
+  Send,
   Loader2,
   MoreHorizontal,
   Copy,
   ExternalLink,
+  Link2,
   Link2Off,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
@@ -37,6 +38,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Separator } from "@/components/ui/separator";
 import { ProposalStatusBadge } from "@/components/proposals/proposal-status-badge";
+import { SendProposalDialog } from "@/components/proposals/editor/send-proposal-dialog";
 import { PROPOSAL_STATUSES, STATUS_LABELS } from "@/lib/constants";
 import { toggleShareAction } from "@/actions/proposals";
 import type { Proposal } from "@/types";
@@ -58,6 +60,7 @@ export function EditorHeader({
 }: EditorHeaderProps): React.ReactElement {
   const [shareLoading, setShareLoading] = useState(false);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const [sendDialogOpen, setSendDialogOpen] = useState(false);
 
   useEffect(() => {
     if (proposal.share_enabled && proposal.share_token) {
@@ -160,28 +163,17 @@ export function EditorHeader({
                 </TooltipTrigger>
                 <TooltipContent>Export PDF</TooltipContent>
               </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8"
-                    onClick={proposal.share_enabled ? handleCopyShareUrl : handleToggleShare}
-                    disabled={shareLoading}
-                  >
-                    {shareLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Link2 className={`h-4 w-4 ${proposal.share_enabled ? "text-primary" : ""}`} />
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  {proposal.share_enabled ? "Copy share link" : "Enable share link"}
-                </TooltipContent>
-              </Tooltip>
             </TooltipProvider>
+
+            {/* Send button */}
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => setSendDialogOpen(true)}
+            >
+              <Send className="mr-1.5 h-3.5 w-3.5" />
+              Send
+            </Button>
 
             {/* Overflow menu */}
             <DropdownMenu>
@@ -284,6 +276,14 @@ export function EditorHeader({
           </div>
         </div>
       </div>
+
+      <SendProposalDialog
+        proposalId={proposal.id}
+        clientEmail={proposal.client_email}
+        clientName={proposal.client_name}
+        open={sendDialogOpen}
+        onOpenChange={setSendDialogOpen}
+      />
     </div>
   );
 }

@@ -18,12 +18,14 @@ import { generateProposal } from "@/lib/ai/proposal-generator";
 import { PLANS, PROPOSAL_VALIDITY_DAYS } from "@/lib/constants";
 import { isSystemTemplateId, getSystemTemplate } from "@/lib/templates";
 import type { TemplateContent } from "@/lib/templates/types";
+import { sendProposalEmail } from "@/lib/email/send";
 import { addDays } from "date-fns";
 import crypto from "crypto";
 import { z } from "zod";
 
 export interface ActionResult {
   error?: string;
+  warning?: string;
   success?: boolean;
 }
 
@@ -326,4 +328,83 @@ export async function updateProposalStatusAction(
 
   revalidatePath(`/proposals/${proposalId}`);
   return { success: true };
+}
+
+const sendProposalSchema = z.object({
+  client_email: z.string().email("Invalid email address"),
+});
+
+export async function sendProposalAction(
+  proposalId: string,
+  data: Record<string, unknown>
+): Promise<ActionResult & { shareUrl?: string }> {
+  const parsed = sendProposalSchema.safeParse(data);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0].message };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return { error: "Not authenticated" };
+  }
+
+  const proposal = await getProposal(supabase, proposalId);
+  if (!proposal) {
+    return { error: "Proposal not found" };
+  }
+
+  const profile = await getProfile(supabase, user.id);
+  if (!profile) {
+    return { error: "Profile not found" };
+  }
+
+  // Generate share token if needed, enable sharing
+  const shareToken = proposal.share_token ?? crypto.randomBytes(16).toString("hex");
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const shareUrl = `${baseUrl}/share/${shareToken}`;
+
+  await updateProposal(supabase, proposalId, {
+    share_token: shareToken,
+    share_enabled: true,
+    status: "sent",
+    sent_at: new Date().toISOString(),
+    client_email: parsed.data.client_email,
+  });
+
+  const companyName = profile.company_name || profile.full_name;
+
+  const emailSent = await sendProposalEmail({
+    to: parsed.data.client_email,
+    proposalTitle: proposal.title,
+    senderName: profile.full_name,
+    senderCompany: companyName,
+    viewUrl: shareUrl,
+  });
+
+  try {
+    await logActivity(supabase, {
+      user_id: user.id,
+      proposal_id: proposalId,
+      action: `Sent proposal "${proposal.title}" to ${parsed.data.client_email}`,
+      metadata: { email: parsed.data.client_email },
+    });
+  } catch {
+    // Activity logging is non-critical
+  }
+
+  revalidatePath(`/proposals/${proposalId}`);
+
+  if (!emailSent) {
+    return {
+      success: true,
+      shareUrl,
+      warning: "Email not configured. Share link has been enabled — copy it manually.",
+    };
+  }
+
+  return { success: true, shareUrl };
 }

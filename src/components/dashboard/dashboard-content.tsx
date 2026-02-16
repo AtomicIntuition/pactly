@@ -1,19 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { FileText, Users, Plus } from "lucide-react";
+import { FileText, Plus } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { StatsCard } from "@/components/shared/stats-card";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ProposalStatusBadge } from "@/components/proposals/proposal-status-badge";
-import type { Proposal, ActivityLog, DashboardStats } from "@/types";
+import type { Proposal } from "@/types";
 
 interface DashboardContentProps {
-  stats: DashboardStats;
   recentProposals: Proposal[];
-  activity: ActivityLog[];
   userName: string;
   greeting: string;
 }
@@ -27,52 +24,28 @@ function formatCurrency(cents: number): string {
 }
 
 export function DashboardContent({
-  stats,
   recentProposals,
-  activity,
   userName,
   greeting,
 }: DashboardContentProps): React.ReactElement {
   return (
     <div className="space-y-8">
-      {/* Greeting */}
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          {greeting}, {userName}
-        </h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Here&apos;s your proposal activity
-        </p>
-      </div>
-
-      {/* Stats grid */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard
-          label="Total Proposals"
-          value={stats.totalProposals.toString()}
-          subtext={`+${stats.proposalsThisWeek} this week`}
-          trend={stats.proposalsThisWeek > 0 ? "up" : "neutral"}
-        />
-        <StatsCard
-          label="Pending Review"
-          value={stats.pendingReview.toString()}
-        />
-        <StatsCard
-          label="Accepted This Month"
-          value={stats.acceptedThisMonth.toString()}
-          subtext={stats.totalProposals > 0 ? `${stats.acceptanceRate}% rate` : undefined}
-          trend={stats.acceptedThisMonth > 0 ? "up" : "neutral"}
-        />
-        <StatsCard
-          label="Revenue This Month"
-          value={formatCurrency(stats.revenueThisMonth)}
-          subtext={
-            stats.revenueChange !== 0
-              ? `${stats.revenueChange > 0 ? "+" : ""}${formatCurrency(stats.revenueChange)} vs last month`
-              : undefined
-          }
-          trend={stats.revenueChange > 0 ? "up" : stats.revenueChange < 0 ? "down" : "neutral"}
-        />
+      {/* Greeting + New Proposal */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            {greeting}, {userName}
+          </h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Here&apos;s your recent proposals
+          </p>
+        </div>
+        <Link href="/proposals/new">
+          <Button>
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Proposal
+          </Button>
+        </Link>
       </div>
 
       {/* Recent Proposals */}
@@ -126,45 +99,6 @@ export function DashboardContent({
             ))}
           </div>
         )}
-      </section>
-
-      {/* Activity Feed */}
-      {activity.length > 0 && (
-        <section>
-          <h2 className="text-lg font-medium mb-4">Recent Activity</h2>
-          <div className="space-y-3">
-            {activity.map((item) => (
-              <div key={item.id} className="flex items-start gap-3 text-sm">
-                <div className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />
-                <div>
-                  <p className="text-muted-foreground">{item.action}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Quick Actions */}
-      <section>
-        <h2 className="text-lg font-medium mb-4">Quick Actions</h2>
-        <div className="flex flex-wrap gap-3">
-          <Link href="/proposals/new">
-            <Button>
-              <Plus className="mr-1.5 h-4 w-4" />
-              New Proposal
-            </Button>
-          </Link>
-          <Link href="/clients">
-            <Button variant="outline">
-              <Users className="mr-1.5 h-4 w-4" />
-              Add Client
-            </Button>
-          </Link>
-        </div>
       </section>
     </div>
   );

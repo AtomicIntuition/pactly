@@ -115,6 +115,9 @@ export interface Proposal {
   sent_at: string | null;
   viewed_at: string | null;
   responded_at: string | null;
+  signature_name: string | null;
+  signature_ip: string | null;
+  signed_at: string | null;
   view_count: number;
   created_at: string;
   updated_at: string;

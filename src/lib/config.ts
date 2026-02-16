@@ -8,6 +8,7 @@ const serverSchema = z.object({
   STRIPE_PRO_PRICE_ID: z.string().optional().default(""),
   STRIPE_AGENCY_PRICE_ID: z.string().optional().default(""),
   RESEND_API_KEY: z.string().optional().default(""),
+  EMAIL_FROM: z.string().optional().default("Pactly <noreply@pactly.com>"),
 });
 
 const clientSchema = z.object({

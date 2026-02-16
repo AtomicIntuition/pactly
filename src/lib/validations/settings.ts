@@ -14,5 +14,12 @@ export const brandSchema = z.object({
   brand_accent: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Must be a valid hex color"),
 });
 
+export const logoUploadSchema = z.object({
+  fileType: z.enum(["image/png", "image/jpeg", "image/webp"], {
+    message: "Only PNG, JPEG, and WebP images are allowed",
+  }),
+  fileSize: z.number().max(2 * 1024 * 1024, "File must be under 2MB"),
+});
+
 export type ProfileInput = z.infer<typeof profileSchema>;
 export type BrandInput = z.infer<typeof brandSchema>;

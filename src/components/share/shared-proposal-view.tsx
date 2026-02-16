@@ -1,12 +1,13 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useState } from "react";
-import { Diamond, Check, X } from "lucide-react";
-import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
+import { Diamond } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { SignaturePanel } from "@/components/share/signature-panel";
 import { resolveProposalColors } from "@/lib/templates";
 import type { Proposal, Profile } from "@/types";
+import { format } from "date-fns";
 
 interface SharedProposalViewProps {
   proposal: Proposal;
@@ -27,31 +28,20 @@ export function SharedProposalView({
   profile,
   token,
 }: SharedProposalViewProps): React.ReactElement {
-  const [responding, setResponding] = useState(false);
   const [responded, setResponded] = useState(
     proposal.status === "accepted" || proposal.status === "declined"
+  );
+  const [responseStatus, setResponseStatus] = useState<"accepted" | "declined" | null>(
+    proposal.status === "accepted" ? "accepted"
+    : proposal.status === "declined" ? "declined"
+    : null
   );
   const colors = resolveProposalColors(proposal, profile);
   const companyName = profile.company_name || profile.full_name;
 
-  const handleRespond = async (accept: boolean): Promise<void> => {
-    setResponding(true);
-    try {
-      const response = await fetch(`/api/share/${token}/respond`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accepted: accept }),
-      });
-
-      if (!response.ok) throw new Error("Failed to respond");
-
-      setResponded(true);
-      toast.success(accept ? "Proposal accepted!" : "Proposal declined");
-    } catch {
-      toast.error("Something went wrong. Please try again.");
-    } finally {
-      setResponding(false);
-    }
+  const handleResponded = (status: "accepted" | "declined"): void => {
+    setResponded(true);
+    setResponseStatus(status);
   };
 
   return (
@@ -61,7 +51,16 @@ export function SharedProposalView({
         <div className="rounded-xl border bg-white shadow-sm overflow-hidden">
           {/* Header */}
           <div className="p-8 text-white" style={{ backgroundColor: colors.primary }}>
-            <p className="text-sm font-medium opacity-80">{companyName}</p>
+            <div className="flex items-center gap-3">
+              {profile.company_logo_url && (
+                <img
+                  src={profile.company_logo_url}
+                  alt=""
+                  className="h-10 w-auto object-contain"
+                />
+              )}
+              <p className="text-sm font-medium opacity-80">{companyName}</p>
+            </div>
             <h1 className="mt-2 text-2xl font-semibold">{proposal.title}</h1>
             <div className="mt-4 flex flex-wrap gap-6 text-sm opacity-80">
               {proposal.client_name && (
@@ -226,40 +225,32 @@ export function SharedProposalView({
             )}
           </div>
 
-          {/* Response buttons */}
+          {/* Signature / Response section */}
           {!responded && (
-            <div className="border-t p-8">
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button
-                  size="lg"
-                  onClick={() => handleRespond(true)}
-                  disabled={responding}
-                  style={{ backgroundColor: colors.primary }}
-                  className="text-white hover:opacity-90 min-w-[160px]"
-                >
-                  <Check className="mr-2 h-4 w-4" />
-                  Accept Proposal
-                </Button>
-                <Button
-                  variant="outline"
-                  size="lg"
-                  onClick={() => handleRespond(false)}
-                  disabled={responding}
-                  className="min-w-[160px]"
-                >
-                  <X className="mr-2 h-4 w-4" />
-                  Decline
-                </Button>
-              </div>
+            <SignaturePanel
+              token={token}
+              colors={colors}
+              clientName={proposal.client_name}
+              onResponded={handleResponded}
+            />
+          )}
+
+          {responded && responseStatus === "accepted" && (
+            <div className="border-t p-8 text-center">
+              <p className="text-sm font-medium text-green-700">
+                Signed by {proposal.signature_name ?? "the client"}
+                {proposal.signed_at && ` on ${format(new Date(proposal.signed_at), "MMMM d, yyyy")}`}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                This proposal has been accepted. The sender has been notified.
+              </p>
             </div>
           )}
 
-          {responded && (
+          {responded && responseStatus === "declined" && (
             <div className="border-t p-8 text-center">
               <p className="text-sm text-muted-foreground">
-                {proposal.status === "accepted"
-                  ? "You've accepted this proposal. The sender has been notified."
-                  : "You've declined this proposal. The sender has been notified."}
+                You&apos;ve declined this proposal. The sender has been notified.
               </p>
             </div>
           )}
