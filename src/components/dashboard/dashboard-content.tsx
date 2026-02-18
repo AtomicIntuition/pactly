@@ -6,11 +6,23 @@ import { formatDistanceToNow } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/shared/empty-state";
+import { StatsCard } from "@/components/shared/stats-card";
 import { ProposalStatusBadge } from "@/components/proposals/proposal-status-badge";
 import type { Proposal } from "@/types";
 
+interface DashboardStats {
+  totalProposals: number;
+  pendingReview: number;
+  acceptedThisMonth: number;
+  revenueThisMonth: number;
+  proposalsThisWeek: number;
+  acceptanceRate: number;
+  revenueChange: number;
+}
+
 interface DashboardContentProps {
   recentProposals: Proposal[];
+  stats: DashboardStats | null;
   userName: string;
   greeting: string;
 }
@@ -25,6 +37,7 @@ function formatCurrency(cents: number): string {
 
 export function DashboardContent({
   recentProposals,
+  stats,
   userName,
   greeting,
 }: DashboardContentProps): React.ReactElement {
@@ -48,6 +61,38 @@ export function DashboardContent({
         </Link>
       </div>
 
+      {/* Stats Grid */}
+      {stats && (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatsCard
+            label="Total Proposals"
+            value={String(stats.totalProposals)}
+            subtext={`${stats.proposalsThisWeek} this week`}
+          />
+          <StatsCard
+            label="Pending Review"
+            value={String(stats.pendingReview)}
+            subtext="Awaiting response"
+          />
+          <StatsCard
+            label="Accepted This Month"
+            value={String(stats.acceptedThisMonth)}
+            subtext={`${stats.acceptanceRate}% acceptance rate`}
+            trend={stats.acceptanceRate >= 40 ? "up" : "neutral"}
+          />
+          <StatsCard
+            label="Revenue This Month"
+            value={formatCurrency(stats.revenueThisMonth)}
+            subtext={
+              stats.revenueChange >= 0
+                ? `+${formatCurrency(stats.revenueChange)} vs last month`
+                : `${formatCurrency(stats.revenueChange)} vs last month`
+            }
+            trend={stats.revenueChange >= 0 ? "up" : "down"}
+          />
+        </div>
+      )}
+
       {/* Recent Proposals */}
       <section>
         <div className="flex items-center justify-between mb-4">
@@ -70,7 +115,7 @@ export function DashboardContent({
           <div className="space-y-3">
             {recentProposals.map((proposal) => (
               <Link key={proposal.id} href={`/proposals/${proposal.id}`}>
-                <Card className="rounded-xl border bg-card p-4 shadow-sm hover:bg-muted/50 transition-colors duration-150 cursor-pointer">
+                <Card className="rounded-lg border bg-card p-4 shadow-sm hover:bg-muted/50 transition-colors duration-150 cursor-pointer">
                   <div className="flex items-center justify-between">
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium">{proposal.title}</p>

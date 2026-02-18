@@ -13,7 +13,7 @@ import * as React from "react";
 
 const styles = {
   body: {
-    backgroundColor: "#fafaf9",
+    backgroundColor: "#1a1a1e",
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
   },
   container: {
@@ -24,34 +24,34 @@ const styles = {
   heading: {
     fontSize: "24px",
     fontWeight: "600",
-    color: "#0c0a09",
+    color: "#fafafa",
     marginBottom: "16px",
   },
   text: {
     fontSize: "14px",
     lineHeight: "24px",
-    color: "#292524",
+    color: "#e4e4e7",
   },
   muted: {
     fontSize: "14px",
     lineHeight: "24px",
-    color: "#78716c",
+    color: "#a1a1aa",
   },
   button: {
-    backgroundColor: "#1e40af",
-    color: "#ffffff",
+    backgroundColor: "#d4a853",
+    color: "#09090b",
     padding: "12px 24px",
-    borderRadius: "8px",
+    borderRadius: "6px",
     textDecoration: "none",
     display: "inline-block",
     fontSize: "14px",
-    fontWeight: "500",
+    fontWeight: "600",
   },
   footer: {
     fontSize: "12px",
-    color: "#a8a29e",
+    color: "#71717a",
     marginTop: "32px",
-    borderTop: "1px solid #e7e5e4",
+    borderTop: "1px solid #27272a",
     paddingTop: "16px",
   },
 };
@@ -62,10 +62,10 @@ export function WelcomeEmail({ name }: { name: string }): React.ReactElement {
   return (
     <Html>
       <Head />
-      <Preview>Welcome to Pactly — start creating proposals!</Preview>
+      <Preview>Welcome to Overture — start creating proposals!</Preview>
       <Body style={styles.body}>
         <Container style={styles.container}>
-          <Heading style={styles.heading}>Welcome to Pactly</Heading>
+          <Heading style={styles.heading}>Welcome to Overture</Heading>
           <Text style={styles.text}>Hi {name},</Text>
           <Text style={styles.text}>
             Thanks for signing up! You&apos;re ready to start creating professional proposals
@@ -85,7 +85,7 @@ export function WelcomeEmail({ name }: { name: string }): React.ReactElement {
             You have 5 free proposals to get started. Upgrade anytime for more.
           </Text>
           <Text style={styles.footer}>
-            Pactly — AI-powered proposals that close deals
+            Overture — AI-powered proposals that close deals
           </Text>
         </Container>
       </Body>
@@ -128,7 +128,7 @@ export function ProposalSharedEmail({
             Click the button above to review the proposal and respond.
           </Text>
           <Text style={styles.footer}>
-            Sent via Pactly
+            Sent via Overture
           </Text>
         </Container>
       </Body>
@@ -164,7 +164,7 @@ export function ProposalViewedEmail({
             </Button>
           </Section>
           <Text style={styles.footer}>
-            Pactly — AI-powered proposals that close deals
+            Overture — AI-powered proposals that close deals
           </Text>
         </Container>
       </Body>
@@ -210,7 +210,7 @@ export function ProposalRespondedEmail({
             </Button>
           </Section>
           <Text style={styles.footer}>
-            Pactly — AI-powered proposals that close deals
+            Overture — AI-powered proposals that close deals
           </Text>
         </Container>
       </Body>

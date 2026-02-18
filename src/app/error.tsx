@@ -13,11 +13,15 @@ export default function Error({
   reset: () => void;
 }): React.ReactElement {
   useEffect(() => {
-    console.error(error);
+    console.error("[Overture Error]", {
+      message: error.message,
+      digest: error.digest,
+      stack: error.stack,
+    });
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center px-4">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10">
         <AlertCircle className="h-7 w-7 text-destructive" />
       </div>
@@ -25,6 +29,11 @@ export default function Error({
       <p className="mt-2 max-w-sm text-center text-sm text-muted-foreground">
         An unexpected error occurred. Please try again.
       </p>
+      {error.digest && (
+        <p className="mt-2 text-xs font-mono text-muted-foreground/50">
+          Error ID: {error.digest}
+        </p>
+      )}
       <div className="mt-6 flex gap-3">
         <Button onClick={reset} variant="outline">
           Try again

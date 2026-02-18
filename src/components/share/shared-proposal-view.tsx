@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { Diamond } from "lucide-react";
+import { Logo } from "@/components/shared/logo";
 import { Separator } from "@/components/ui/separator";
 import { SignaturePanel } from "@/components/share/signature-panel";
 import { resolveProposalColors } from "@/lib/templates";
@@ -257,8 +257,8 @@ export function SharedProposalView({
         </div>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-muted-foreground">
-          Powered by <Diamond className="inline h-3 w-3" /> Pactly
+        <p className="mt-6 text-center text-xs text-muted-foreground flex items-center justify-center gap-1">
+          Powered by <Logo size="sm" />
         </p>
       </div>
     </div>

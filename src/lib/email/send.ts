@@ -33,21 +33,21 @@ export async function sendProposalEmail({
       to,
       subject: `Proposal: ${proposalTitle}`,
       html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px;">
-          <p style="font-size: 15px; color: #292524; line-height: 1.6;">
-            ${senderName} from <strong>${senderCompany}</strong> has sent you a proposal.
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px; background-color: #1a1a1e;">
+          <p style="font-size: 15px; color: #e4e4e7; line-height: 1.6;">
+            ${senderName} from <strong style="color: #fafafa;">${senderCompany}</strong> has sent you a proposal.
           </p>
-          <h2 style="font-size: 20px; color: #0f172a; margin: 24px 0 16px;">${proposalTitle}</h2>
-          <p style="font-size: 14px; color: #78716c; line-height: 1.6;">
+          <h2 style="font-size: 20px; color: #fafafa; margin: 24px 0 16px;">${proposalTitle}</h2>
+          <p style="font-size: 14px; color: #a1a1aa; line-height: 1.6;">
             Review the full proposal, then accept or decline directly from the link below.
           </p>
           <div style="margin: 32px 0;">
-            <a href="${viewUrl}" style="display: inline-block; background-color: #0f172a; color: #ffffff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 500;">
+            <a href="${viewUrl}" style="display: inline-block; background-color: #d4a853; color: #09090b; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
               View Proposal
             </a>
           </div>
-          <p style="font-size: 12px; color: #a8a29e; margin-top: 40px;">
-            Sent via Pactly
+          <p style="font-size: 12px; color: #71717a; margin-top: 40px;">
+            Sent via Overture
           </p>
         </div>
       `,
@@ -76,16 +76,16 @@ export async function sendResponseNotification({
       to,
       subject: `Proposal ${status}: ${proposalTitle}`,
       html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px;">
-          <h2 style="font-size: 20px; color: #0f172a; margin-bottom: 16px;">
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 560px; margin: 0 auto; padding: 40px 20px; background-color: #1a1a1e;">
+          <h2 style="font-size: 20px; color: #fafafa; margin-bottom: 16px;">
             Proposal ${status}
           </h2>
-          <p style="font-size: 15px; color: #292524; line-height: 1.6;">
-            <strong>${clientName || "Your client"}</strong> has <strong>${status}</strong> the proposal
+          <p style="font-size: 15px; color: #e4e4e7; line-height: 1.6;">
+            <strong style="color: #fafafa;">${clientName || "Your client"}</strong> has <strong>${status}</strong> the proposal
             &ldquo;${proposalTitle}&rdquo;.
           </p>
-          <p style="font-size: 12px; color: #a8a29e; margin-top: 40px;">
-            Sent via Pactly
+          <p style="font-size: 12px; color: #71717a; margin-top: 40px;">
+            Sent via Overture
           </p>
         </div>
       `,

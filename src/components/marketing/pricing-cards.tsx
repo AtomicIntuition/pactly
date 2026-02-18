@@ -30,12 +30,12 @@ export function PricingCards(): React.ReactElement {
               <Card
                 key={planKey}
                 className={cn(
-                  "relative rounded-xl border bg-card p-8 shadow-sm",
-                  isPopular && "border-primary shadow-md ring-1 ring-primary"
+                  "relative rounded-lg border bg-card p-8 shadow-sm",
+                  isPopular && "border-primary shadow-md ring-1 ring-primary/50 shadow-primary/10"
                 )}
               >
                 {isPopular && (
-                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground">
+                  <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-primary text-primary-foreground font-semibold">
                     Most Popular
                   </Badge>
                 )}
@@ -59,7 +59,7 @@ export function PricingCards(): React.ReactElement {
                 <ul className="mt-8 space-y-3">
                   {plan.features.map((feature) => (
                     <li key={feature} className="flex items-center gap-2 text-sm">
-                      <Check className="h-4 w-4 shrink-0 text-success" />
+                      <Check className="h-4 w-4 shrink-0 text-primary" />
                       {feature}
                     </li>
                   ))}

@@ -7,7 +7,6 @@ import {
   FileText,
   Users,
   Settings,
-  Diamond,
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
@@ -16,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "@/components/app/user-menu";
+import { Logo } from "@/components/shared/logo";
 import type { Profile } from "@/types";
 import { PLANS } from "@/lib/constants";
 
@@ -53,10 +53,7 @@ export function Sidebar({ profile, collapsed, onToggle }: SidebarProps): React.R
       {/* Logo */}
       <div className="flex h-14 items-center justify-between border-b px-4">
         <Link href="/dashboard" className="flex items-center gap-2">
-          <Diamond className="h-5 w-5 shrink-0 text-primary" />
-          {!collapsed && (
-            <span className="text-lg font-semibold tracking-tight">Pactly</span>
-          )}
+          <Logo size="md" showWordmark={!collapsed} />
         </Link>
         <Button
           variant="ghost"
@@ -82,9 +79,9 @@ export function Sidebar({ profile, collapsed, onToggle }: SidebarProps): React.R
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors duration-150",
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-150",
                 isActive
-                  ? "bg-muted text-foreground font-medium"
+                  ? "border-l-2 border-primary bg-primary/5 text-foreground font-medium"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
@@ -103,9 +100,9 @@ export function Sidebar({ profile, collapsed, onToggle }: SidebarProps): React.R
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors duration-150",
+                "flex items-center gap-3 rounded-md px-3 py-2 text-sm transition-colors duration-150",
                 isActive
-                  ? "bg-muted text-foreground font-medium"
+                  ? "border-l-2 border-primary bg-primary/5 text-foreground font-medium"
                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
               )}
             >
@@ -118,12 +115,12 @@ export function Sidebar({ profile, collapsed, onToggle }: SidebarProps): React.R
 
       {/* Plan usage card */}
       {!collapsed && profile.plan === "free" && (
-        <div className="mx-3 mb-4 rounded-xl bg-muted p-4">
+        <div className="mx-3 mb-4 rounded-lg bg-secondary p-4">
           <p className="text-xs font-medium text-muted-foreground">Free Plan</p>
           <p className="mt-1 text-sm font-medium">
             {profile.proposal_count}/{plan.proposals_per_month} proposals
           </p>
-          <Progress value={usagePercent} className="mt-2 h-1.5" />
+          <Progress value={usagePercent} className="mt-2 h-1.5 [&>div]:bg-primary" />
           <Link href="/settings/billing">
             <Button variant="link" size="sm" className="mt-2 h-auto p-0 text-xs text-primary">
               Upgrade to Pro

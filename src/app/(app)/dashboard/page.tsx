@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { getProposals } from "@/lib/supabase/queries";
+import { getProposals, getDashboardStats } from "@/lib/supabase/queries";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
 import { DashboardSkeleton } from "@/components/shared/loading-skeleton";
 
@@ -20,10 +20,15 @@ async function DashboardData(): Promise<React.ReactElement> {
   }
 
   let recentProposals: Awaited<ReturnType<typeof getProposals>>["proposals"] = [];
+  let stats: Awaited<ReturnType<typeof getDashboardStats>> | null = null;
 
   try {
-    const result = await getProposals(supabase, user.id, { limit: 10 });
+    const [result, dashStats] = await Promise.all([
+      getProposals(supabase, user.id, { limit: 10 }),
+      getDashboardStats(supabase, user.id),
+    ]);
     recentProposals = result.proposals;
+    stats = dashStats;
   } catch {
     // Tables may not exist yet — show empty dashboard
   }
@@ -34,6 +39,7 @@ async function DashboardData(): Promise<React.ReactElement> {
   return (
     <DashboardContent
       recentProposals={recentProposals}
+      stats={stats}
       userName={user.user_metadata?.full_name ?? "there"}
       greeting={greeting}
     />

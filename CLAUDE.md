@@ -3,7 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 ## What This Is
-Pactly — an AI-powered proposal and SOW generator for freelancers, consultants, and agencies. Users paste a client brief, the AI researches the client and generates a professional proposal, the user reviews/edits, then exports as a branded PDF or shareable link.
+Overture — an AI-powered proposal and SOW generator for freelancers, consultants, and agencies. Users paste a client brief, the AI researches the client and generates a professional proposal, the user reviews/edits, then exports as a branded PDF or shareable link.
 
 ## Tech Stack
 - **Framework:** Next.js 16 (App Router, Server Components by default, Turbopack)

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Plus, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -72,12 +73,15 @@ export function Header({ onMobileMenuToggle }: HeaderProps): React.ReactElement 
           ))}
         </nav>
       </div>
-      <Link href="/proposals/new">
-        <Button size="sm">
-          <Plus className="mr-1.5 h-4 w-4" />
-          New Proposal
-        </Button>
-      </Link>
+      <div className="flex items-center gap-2">
+        <ThemeToggle />
+        <Link href="/proposals/new">
+          <Button size="sm">
+            <Plus className="mr-1.5 h-4 w-4" />
+            New Proposal
+          </Button>
+        </Link>
+      </div>
     </header>
   );
 }

@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { Diamond } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/shared/logo";
+import { ThemeToggle } from "@/components/shared/theme-toggle";
 import { MarketingFooter } from "@/components/marketing/footer";
 
 export default function MarketingLayout({
@@ -11,11 +12,10 @@ export default function MarketingLayout({
   return (
     <div className="min-h-screen flex flex-col">
       {/* Navbar */}
-      <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-sm">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/80 backdrop-blur-sm">
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 md:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <Diamond className="h-5 w-5 text-primary" />
-            <span className="text-lg font-semibold tracking-tight">Pactly</span>
+            <Logo size="md" />
           </Link>
           <nav className="hidden items-center gap-6 md:flex">
             <Link
@@ -24,6 +24,7 @@ export default function MarketingLayout({
             >
               Pricing
             </Link>
+            <ThemeToggle />
             <Link href="/login">
               <Button variant="ghost" size="sm">
                 Sign in
@@ -34,12 +35,7 @@ export default function MarketingLayout({
             </Link>
           </nav>
           <div className="flex items-center gap-2 md:hidden">
-            <Link
-              href="/pricing"
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Pricing
-            </Link>
+            <ThemeToggle />
             <Link href="/login">
               <Button variant="ghost" size="sm">
                 Sign in

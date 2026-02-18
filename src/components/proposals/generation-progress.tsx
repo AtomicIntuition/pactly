@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Diamond, Check, Circle, AlertCircle } from "lucide-react";
+import { Check, Circle, AlertCircle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Logo } from "@/components/shared/logo";
 import { createClient } from "@/lib/supabase/client";
 import { GENERATION_STEPS } from "@/lib/constants";
 import type { GenerationMetadata } from "@/types";
@@ -82,15 +83,17 @@ export function GenerationProgress({ proposal }: GenerationProgressProps): React
 
   return (
     <div className="mx-auto flex max-w-md flex-col items-center justify-center py-20">
-      <Card className="w-full rounded-xl border bg-card p-8 shadow-sm">
+      <Card className="w-full rounded-lg border bg-card p-8 shadow-sm">
         <div className="flex flex-col items-center text-center">
-          <Diamond className="h-8 w-8 text-primary animate-pulse" />
+          <div className="animate-pulse">
+            <Logo size="lg" showWordmark={false} />
+          </div>
           <h2 className="mt-4 text-lg font-medium">Generating your proposal...</h2>
 
           {/* Progress bar */}
           <div className="mt-6 w-full">
             <div className="relative">
-              <Progress value={progress} className="h-2" />
+              <Progress value={progress} className="h-2 [&>div]:bg-primary" />
               <div className="absolute inset-0 h-2 rounded-full animate-shimmer" />
             </div>
             <p className="mt-2 text-right text-xs text-muted-foreground font-mono tabular-nums">
@@ -107,7 +110,7 @@ export function GenerationProgress({ proposal }: GenerationProgressProps): React
               return (
                 <div key={step} className="flex items-center gap-3 text-sm">
                   {isCompleted ? (
-                    <Check className="h-4 w-4 shrink-0 text-success" />
+                    <Check className="h-4 w-4 shrink-0 text-primary" />
                   ) : isCurrent ? (
                     <Circle className="h-4 w-4 shrink-0 text-primary animate-pulse-dot" />
                   ) : (

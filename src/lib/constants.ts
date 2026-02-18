@@ -1,7 +1,7 @@
 import type { PlanType } from "@/types";
 
-export const APP_NAME = "Pactly";
-export const APP_DESCRIPTION = "AI-powered proposals that close deals";
+export const APP_NAME = "Overture";
+export const APP_DESCRIPTION = "Proposals that command attention";
 
 export const SERVICE_TYPES = [
   "Web Development",
